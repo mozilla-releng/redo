@@ -6,7 +6,7 @@ from retry import retrying
 
 log = logging.getLogger(__name__)
 
-if __name__ == "__main__":
+def main():
     from argparse import ArgumentParser
 
     parser = ArgumentParser()
@@ -16,9 +16,8 @@ if __name__ == "__main__":
         help="How long to sleep between attempts. Sleeptime doubles after each attempt.")
     parser.add_argument("-m", "--max-sleeptime", type=int, default=5*60,
         help="Maximum length of time to sleep between attempts (limits backoff length).")
-    parser.add_argument("-v", "--verbose", type=bool, action="store_true", default=False)
-    parser.add_argument("cmd",
-        help="Command to run. Eg: wget http://blah")
+    parser.add_argument("-v", "--verbose", action="store_true", default=False)
+    parser.add_argument("cmd", help="Command to run. Eg: wget http://blah")
 
     args = parser.parse_args()
 
@@ -40,3 +39,6 @@ if __name__ == "__main__":
         log.error("Unable to run command after %d attempts" % args.attempts)
         rc = getattr(e, "returncode", -2)
         sys.exit(rc)
+
+if __name__ == "__main__":
+    main()

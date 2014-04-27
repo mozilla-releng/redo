@@ -7,4 +7,7 @@ setup(
     author="Mozilla Release Engineering",
     author_email="release+pypi@mozilla.com",
     packages=["retry"],
+    entry_points={
+        "console_scripts": ["retry = retry.cmd:main"],
+    },
 )
