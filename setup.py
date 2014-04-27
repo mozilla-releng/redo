@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="retry",
-    version=__version__,
+    version="1.0",
     description="Utilities to retry Python callables.",
     author="Mozilla Release Engineering",
     author_email="release+pypi@mozilla.com",
