@@ -35,7 +35,7 @@ def main():
             r_check_call(args.cmd)
     except KeyboardInterrupt:
         sys.exit(-1)
-    except Exception, e:
+    except Exception as e:
         log.error("Unable to run command after %d attempts" % args.attempts, exc_info=True)
         rc = getattr(e, "returncode", -2)
         sys.exit(rc)
