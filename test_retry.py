@@ -133,7 +133,7 @@ class TestRetry(unittest.TestCase):
         cleanup = mock.Mock()
         func = retriable(cleanup=cleanup, sleeptime=0)(_succeedOnSecondAttempt)
         func()
-        self.assertEquals(cleanup.call_count, 1)
+        self.assertEqual(cleanup.call_count, 1)
 
     def testRetryArgsPassed(self):
         args = (1, 'two', 3)
