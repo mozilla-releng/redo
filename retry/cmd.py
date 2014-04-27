@@ -17,7 +17,7 @@ def main():
     parser.add_argument("-m", "--max-sleeptime", type=int, default=5*60,
         help="Maximum length of time to sleep between attempts (limits backoff length).")
     parser.add_argument("-v", "--verbose", action="store_true", default=False)
-    parser.add_argument("cmd", help="Command to run. Eg: wget http://blah")
+    parser.add_argument("cmd", nargs="+", help="Command to run. Eg: wget http://blah")
 
     args = parser.parse_args()
 
@@ -31,12 +31,12 @@ def main():
     try:
         with retrying(check_call, attempts=args.attempts, sleeptime=args.sleeptime,
                       max_sleeptime=args.max_sleeptime,
-                      retry_exceptions=(CalledProcessError,)):
-            check_call(args.cmd)
+                      retry_exceptions=(CalledProcessError,)) as r_check_call:
+            r_check_call(args.cmd)
     except KeyboardInterrupt:
         sys.exit(-1)
     except Exception, e:
-        log.error("Unable to run command after %d attempts" % args.attempts)
+        log.error("Unable to run command after %d attempts" % args.attempts, exc_info=True)
         rc = getattr(e, "returncode", -2)
         sys.exit(rc)
 
