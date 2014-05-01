@@ -1,13 +1,14 @@
 from setuptools import setup
 
 setup(
-    name="retry",
+    name="redo",
     version="1.0",
     description="Utilities to retry Python callables.",
-    author="Mozilla Release Engineering",
-    author_email="release+pypi@mozilla.com",
-    packages=["retry"],
+    author="Ben Hearsum",
+    author_email="ben@hearsum.ca",
+    packages=["redo"],
     entry_points={
-        "console_scripts": ["retry = retry.cmd:main"],
+        "console_scripts": ["retry = redo.cmd:main"],
     },
+    url="https://github.com/bhearsum/redo",
 )
