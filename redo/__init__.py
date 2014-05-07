@@ -14,17 +14,29 @@ log = logging.getLogger(__name__)
 def retry(action, attempts=5, sleeptime=60, max_sleeptime=5 * 60,
           retry_exceptions=(Exception,), cleanup=None, args=(), kwargs={}):
     """Call `action' a maximum of `attempts' times until it succeeds,
-        defaulting to 5. `sleeptime' is the number of seconds to wait
-        between attempts, defaulting to 60 and doubling each retry attempt, to
-        a maximum of `max_sleeptime'.  `retry_exceptions' is a tuple of
-        Exceptions that should be caught. If exceptions other than those
-        listed in `retry_exceptions' are raised from `action', they will be
-        raised immediately. If `cleanup' is provided and callable it will
-        be called immediately after an Exception is caught. No arguments
-        will be passed to it. If your cleanup function requires arguments
-        it is recommended that you wrap it in an argumentless function.
-        `args' and `kwargs' are a tuple and dict of arguments to pass onto
-        to `callable'"""
+    defaulting to 5. `sleeptime' is the number of seconds to wait
+    between attempts, defaulting to 60 and doubling each retry attempt, to
+    a maximum of `max_sleeptime'.  `retry_exceptions' is a tuple of
+    Exceptions that should be caught. If exceptions other than those
+    listed in `retry_exceptions' are raised from `action', they will be
+    raised immediately. If `cleanup' is provided and callable it will
+    be called immediately after an Exception is caught. No arguments
+    will be passed to it. If your cleanup function requires arguments
+    it is recommended that you wrap it in an argumentless function.
+    `args' and `kwargs' are a tuple and dict of arguments to pass onto
+    to `callable'.
+
+    Example usage:
+    def maybe_raises(foo, bar=1):
+        ...
+        return 1
+
+    def cleanup():
+        os.rmtree("/tmp/dirtydir")
+   
+    ret = retry(maybe_raises, retry_exceptions=(HTTPError,),
+                cleanup=cleanup, args=1, kwargs={"bar": 2})
+    """
     assert callable(action)
     assert not cleanup or callable(cleanup)
     if max_sleeptime < sleeptime:
