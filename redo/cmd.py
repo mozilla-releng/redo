@@ -7,7 +7,7 @@ import logging
 from subprocess import check_call, CalledProcessError
 import sys
 
-from retry import retrying
+from redo import retrying
 
 log = logging.getLogger(__name__)
 
