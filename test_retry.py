@@ -7,7 +7,7 @@
 import mock
 import unittest
 
-from retry import retry, retriable, retrying
+from redo import retry, retriable, retrying
 
 ATTEMPT_N = 1
 
