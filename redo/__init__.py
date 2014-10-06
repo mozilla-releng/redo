@@ -108,6 +108,21 @@ def retrying(func, *retry_args, **retry_kwargs):
 
 
 def retrier(attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=1.5, jitter=1):
+    """A generator that yields `attempts` times. Useful for writing retry
+    blocks with more natural error handling. You must break out of the loop
+    after you know the thing being retried has succeeded.
+    Example usage:
+    def foo(a, b):
+        ...
+
+    for attempt in retrier():
+        try:
+            foo()
+            break
+        except HTTPError, e:
+            # cleanup before next attempt goes here.
+    """
+
     for _ in range(attempts):
         log.debug("attempt %i/%i", _ + 1, attempts)
         yield
