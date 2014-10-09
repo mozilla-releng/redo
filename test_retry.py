@@ -166,7 +166,7 @@ class TestRetry(unittest.TestCase):
         """Make sure to distribute retry and function args/kwargs properly"""
         def wrapped(*args, **kwargs):
             pass
-        with mock.patch("retry.retry") as mocked_retry:
+        with mock.patch("redo.retry") as mocked_retry:
             with retrying(wrapped, 1, x="y") as w:
                 w("a", b=1, c="a")
             mocked_retry.assert_called_once_with(
