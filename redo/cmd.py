@@ -11,15 +11,19 @@ from redo import retrying
 
 log = logging.getLogger(__name__)
 
+
 def main():
     from argparse import ArgumentParser
 
     parser = ArgumentParser()
-    parser.add_argument("-a", "--attempts", type=int, default=5,
+    parser.add_argument(
+        "-a", "--attempts", type=int, default=5,
         help="How many times to retry.")
-    parser.add_argument("-s", "--sleeptime", type=int, default=60,
+    parser.add_argument(
+        "-s", "--sleeptime", type=int, default=60,
         help="How long to sleep between attempts. Sleeptime doubles after each attempt.")
-    parser.add_argument("-m", "--max-sleeptime", type=int, default=5*60,
+    parser.add_argument(
+        "-m", "--max-sleeptime", type=int, default=5*60,
         help="Maximum length of time to sleep between attempts (limits backoff length).")
     parser.add_argument("-v", "--verbose", action="store_true", default=False)
     parser.add_argument("cmd", nargs="+", help="Command to run. Eg: wget http://blah")

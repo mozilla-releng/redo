@@ -34,7 +34,7 @@ def retry(action, attempts=5, sleeptime=60, max_sleeptime=5 * 60,
 
     def cleanup():
         os.rmtree("/tmp/dirtydir")
-   
+
     ret = retry(maybe_raises, retry_exceptions=(HTTPError,),
                 cleanup=cleanup, args=1, kwargs={"bar": 2})
     """
