@@ -10,4 +10,4 @@ install:
 script:
   - pep8 --config=./pep8rc .
   - pyflakes .
-  - nosetests
+  - nosetests --with-doctest
