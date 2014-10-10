@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="redo",
-    version="1.3",
+    version="1.4",
     description="Utilities to retry Python callables.",
     author="Ben Hearsum",
     author_email="ben@hearsum.ca",
