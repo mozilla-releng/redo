@@ -12,39 +12,128 @@ import random
 log = logging.getLogger(__name__)
 
 
+def retrier(attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=1.5, jitter=1):
+    """
+    A generator function that sleeps between retries, handles exponential
+    backoff and jitter. The action you are retrying is meant to run after
+    retrier yields.
+
+    At each iteration, we sleep for sleeptime + random.randint(-jitter, jitter).
+    Afterwards sleeptime is multiplied by sleepscale for the next iteration.
+
+    Args:
+        attempts (int): maximum number of times to try; defaults to 5
+        sleeptime (float): how many seconds to sleep between tries; defaults to
+                           60s (one minute)
+        max_sleeptime (float): the longest we'll sleep, in seconds; defaults to
+                               300s (five minutes)
+        sleepscale (float): how much to multiply the sleep time by each
+                            iteration; defaults to 1.5
+        jitter (int): random jitter to introduce to sleep time each iteration.
+                      the amount is chosen at random between [-jitter, +jitter]
+                      defaults to 1
+
+    Yields:
+        None, a maximum of `attempts` number of times
+
+    Example:
+        >>> n = 0
+        >>> for _ in retrier(sleeptime=0, jitter=0):
+        ...     if n == 3:
+        ...         # We did the thing!
+        ...         break
+        ...     n += 1
+        >>> n
+        3
+
+        >>> n = 0
+        >>> for _ in retrier(sleeptime=0, jitter=0):
+        ...     if n == 6:
+        ...         # We did the thing!
+        ...         break
+        ...     n += 1
+        ... else:
+        ...     print "max tries hit"
+        max tries hit
+    """
+    for _ in range(attempts):
+        log.debug("attempt %i/%i", _ + 1, attempts)
+        yield
+        if jitter:
+            sleeptime += random.randint(-jitter, jitter)
+            sleeptime = max(sleeptime, 0)
+
+        if _ == attempts - 1:
+            # Don't need to sleep the last time
+            break
+        log.debug("sleeping for %.2fs (attempt %i/%i)", sleeptime, _ + 1, attempts)
+        time.sleep(sleeptime)
+        sleeptime *= sleepscale
+        if sleeptime > max_sleeptime:
+            sleeptime = max_sleeptime
+
+
 def retry(action, attempts=5, sleeptime=60, max_sleeptime=5 * 60,
-          retry_exceptions=(Exception,), cleanup=None, args=(), kwargs={}):
-    """Call `action' a maximum of `attempts' times until it succeeds,
-    defaulting to 5. `sleeptime' is the number of seconds to wait
-    between attempts, defaulting to 60 and doubling each retry attempt, to
-    a maximum of `max_sleeptime'.  `retry_exceptions' is a tuple of
-    Exceptions that should be caught. If exceptions other than those
-    listed in `retry_exceptions' are raised from `action', they will be
-    raised immediately. If `cleanup' is provided and callable it will
-    be called immediately after an Exception is caught. No arguments
-    will be passed to it. If your cleanup function requires arguments
-    it is recommended that you wrap it in an argumentless function.
-    `args' and `kwargs' are a tuple and dict of arguments to pass onto
-    to `callable'.
+          sleepscale=1.5, jitter=1, retry_exceptions=(Exception,),
+          cleanup=None, args=(), kwargs={}):
+    """
+    Calls an action function until it succeeds, or we give up.
 
-    Example usage:
-    def maybe_raises(foo, bar=1):
-        ...
-        return 1
+    Args:
+        action (callable): the function to retry
+        attempts (int): maximum number of times to try; defaults to 5
+        sleeptime (float): how many seconds to sleep between tries; defaults to
+                           60s (one minute)
+        max_sleeptime (float): the longest we'll sleep, in seconds; defaults to
+                               300s (five minutes)
+        sleepscale (float): how much to multiply the sleep time by each
+                            iteration; defaults to 1.5
+        jitter (int): random jitter to introduce to sleep time each iteration.
+                      the amount is chosen at random between [-jitter, +jitter]
+                      defaults to 1
+        retry_exceptions (tuple): tuple of exceptions to be caught. If other
+                                  exceptions are raised by action(), then these
+                                  are immediately re-raised to the caller.
+        cleanup (callable): optional; called if one of `retry_exceptions` is
+                            caught. No arguments are passed to the cleanup
+                            function; if your cleanup requires arguments,
+                            consider using functools.partial or a lambda
+                            function.
+        args (tuple): positional arguments to call `action` with
+        hwargs (dict): keyword arguments to call `action` with
 
-    def cleanup():
-        os.rmtree("/tmp/dirtydir")
+    Returns:
+        Whatever action(*args, **kwargs) returns
 
-    ret = retry(maybe_raises, retry_exceptions=(HTTPError,),
-                cleanup=cleanup, args=1, kwargs={"bar": 2})
+    Raises:
+        Whatever action(*args, **kwargs) raises. `retry_exceptions` are caught
+        up until the last attempt, in which case they are re-raised.
+
+    Example:
+        >>> count = 0
+        >>> def foo():
+        ...     global count
+        ...     count += 1
+        ...     print count
+        ...     if count < 3:
+        ...         raise ValueError("count is too small!")
+        ...     return "success!"
+        >>> retry(foo, sleeptime=0, jitter=0)
+        1
+        2
+        3
+        'success!'
     """
     assert callable(action)
     assert not cleanup or callable(cleanup)
     if max_sleeptime < sleeptime:
         log.debug("max_sleeptime %d less than sleeptime %d" % (
             max_sleeptime, sleeptime))
+
     n = 1
-    while n <= attempts:
+    for _ in retrier(attempts=attempts, sleeptime=sleeptime,
+                     max_sleeptime=max_sleeptime, sleepscale=sleepscale,
+                     jitter=jitter):
         try:
             log.info("retry: Calling %s with args: %s, kwargs: %s, "
                      "attempt #%d" % (action, str(args), str(kwargs), n))
@@ -56,29 +145,39 @@ def retry(action, attempts=5, sleeptime=60, max_sleeptime=5 * 60,
             if n == attempts:
                 log.info("retry: Giving up on %s" % action)
                 raise
-            if sleeptime > 0:
-                log.info("retry: Failed, sleeping %d seconds before retrying" %
-                         sleeptime)
-                time.sleep(sleeptime)
-                sleeptime = sleeptime * 2
-                if sleeptime > max_sleeptime:
-                    sleeptime = max_sleeptime
             continue
         finally:
             n += 1
 
 
 def retriable(*retry_args, **retry_kwargs):
-    """A decorator for retry(). Example usage:
-    @retriable()
-    def foo()
-        ...
-
-    @retriable(attempts=100, sleeptime=10)
-    def bar():
-        ...
     """
+    A decorator factory for retry(). Wrap your function in @retriable(...) to
+    give it retry powers!
 
+    Arguments:
+        Same as for `retry`, with the exception of `action`, `args`, and `kwargs`,
+        which are left to the normal function definition.
+
+    Returns:
+        A function decorator
+
+    Example:
+        >>> count = 0
+        >>> @retriable(sleeptime=0, jitter=0)
+        ... def foo():
+        ...     global count
+        ...     count += 1
+        ...     print count
+        ...     if count < 3:
+        ...         raise ValueError("count too small")
+        ...     return "success!"
+        >>> foo()
+        1
+        2
+        3
+        'success!'
+    """
     def _retriable_factory(func):
         @wraps(func)
         def _retriable_wrapper(*args, **kwargs):
@@ -90,50 +189,30 @@ def retriable(*retry_args, **retry_kwargs):
 
 @contextmanager
 def retrying(func, *retry_args, **retry_kwargs):
-    """A context manager that returns a retrying version of `func'. Mostly
-    useful to allow more natural invocation of retrying methods.
-    Example usage:
-    def foo(a, b):
-        ...
-
-    with retrying(foo, retry_exceptions=(HTTPError,)) as retrying_foo:
-        # retries on any HTTPError
-        r = retrying_foo(1, 3)
     """
+    A context manager for wrapping functions with retry functionality.
 
-    @wraps(func)
-    def retry_it(*args, **kwargs):
-        return retry(func, args=args, kwargs=kwargs, *retry_args,
-                     **retry_kwargs)
-    yield retry_it
+    Arguments:
+        func (callable): the function to wrap
+        other arguments as per `retry`
 
+    Returns:
+        A context manager that returns retriable(func) on __enter__
 
-def retrier(attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=1.5, jitter=1):
-    """A generator that yields `attempts` times. Useful for writing retry
-    blocks with more natural error handling. You must break out of the loop
-    after you know the thing being retried has succeeded.
-    Example usage:
-    def foo(a, b):
-        ...
-
-    for attempt in retrier():
-        try:
-            foo()
-            break
-        except HTTPError, e:
-            # cleanup before next attempt goes here.
+    Example:
+        >>> count = 0
+        >>> def foo():
+        ...     global count
+        ...     count += 1
+        ...     print count
+        ...     if count < 3:
+        ...         raise ValueError("count too small")
+        ...     return "success!"
+        >>> with retrying(foo, sleeptime=0, jitter=0) as f:
+        ...     f()
+        1
+        2
+        3
+        'success!'
     """
-
-    for _ in range(attempts):
-        log.debug("attempt %i/%i", _ + 1, attempts)
-        yield
-        if jitter:
-            sleeptime += random.randint(-jitter, jitter)
-        if _ == attempts - 1:
-            # Don't need to sleep the last time
-            break
-        log.debug("sleeping for %.2fs (attempt %i/%i)", sleeptime, _ + 1, attempts)
-        time.sleep(sleeptime)
-        sleeptime *= sleepscale
-        if sleeptime > max_sleeptime:
-            sleeptime = max_sleeptime
+    yield retriable(*retry_args, **retry_kwargs)(func)
