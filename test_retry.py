@@ -205,7 +205,8 @@ class TestRetry(unittest.TestCase):
             # Test that jitter works
             with mock.patch("random.randint") as randint:
                 randint.return_value = 3
-                for _ in retrier(attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=2, jitter=3):
+                for _ in retrier(attempts=5, sleeptime=10, max_sleeptime=300,
+                                 sleepscale=2, jitter=3):
                     randint.return_value *= -1
                 expected = [mock.call(x) for x in (7, 17, 31, 65)]
                 self.assertEquals(sleep.call_args_list, expected)
