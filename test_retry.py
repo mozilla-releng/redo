@@ -192,6 +192,15 @@ class TestRetry(unittest.TestCase):
             expected = [mock.call(x) for x in (10, 20, 40, 80)]
             self.assertEquals(sleep.call_args_list, expected)
 
+    def test_retrier_sleep_no_jitter(self):
+        """Make sure retrier sleep is behaving"""
+        with mock.patch("time.sleep") as sleep:
+            # Test that normal sleep scaling works without a jitter
+            for _ in retrier(attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=2, jitter=None):
+                pass
+            expected = [mock.call(x) for x in (10, 20, 40, 80)]
+            self.assertEquals(sleep.call_args_list, expected)
+
     def test_retrier_maxsleep(self):
         with mock.patch("time.sleep") as sleep:
             # Test that max sleep time works
