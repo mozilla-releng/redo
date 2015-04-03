@@ -58,13 +58,13 @@ def retrier(attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=1.5, jitter=
     """
     if jitter > sleeptime:
         # To prevent negative sleep times
-        raise Exception('jitter (%i) must be less than sleep time (%i)', jitter, sleeptime)
+        raise Exception('jitter ({}) must be less than sleep time ({})'.format(jitter, sleeptime))
 
     sleeptime_real = sleeptime
     for _ in range(attempts):
         log.debug("attempt %i/%i", _ + 1, attempts)
 
-        yield sleeptime_real
+        yield
 
         if jitter:
             sleeptime_real = sleeptime + random.randint(-jitter, jitter)
