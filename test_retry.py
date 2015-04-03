@@ -200,6 +200,9 @@ class TestRetry(unittest.TestCase):
             expected = [mock.call(x) for x in (10, 20, 30, 30)]
             self.assertEquals(sleep.call_args_list, expected)
 
+    def test_jitter_bounds(self):
+        self.assertRaises(Exception, retrier(sleeptime=1, jitter=2))
+
     def test_retrier_jitter(self):
         with mock.patch("time.sleep") as sleep:
             # Test that jitter works
