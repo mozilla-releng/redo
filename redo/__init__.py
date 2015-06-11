@@ -60,28 +60,28 @@ def retrier(attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=1.5, jitter=
         # To prevent negative sleep times
         raise Exception('jitter ({}) must be less than sleep time ({})'.format(jitter, sleeptime))
 
-    sleeptime_base = sleeptime
+    sleeptime_real = sleeptime
     for _ in range(attempts):
         log.debug("attempt %i/%i", _ + 1, attempts)
 
-        yield
+        yield sleeptime_real
 
         if jitter:
-            sleeptime_base = sleeptime + random.randint(-jitter, jitter)
+            sleeptime_real = sleeptime + random.randint(-jitter, jitter)
             # our jitter should scale along with the sleeptime
             jitter = int(jitter * sleepscale)
         else:
-            sleeptime_base = sleeptime
+            sleeptime_real = sleeptime
 
         sleeptime *= sleepscale
 
-        if sleeptime_base > max_sleeptime:
-            sleeptime_base = max_sleeptime
+        if sleeptime_real > max_sleeptime:
+            sleeptime_real = max_sleeptime
 
         # Don't need to sleep the last time
         if _ < attempts - 1:
-            log.debug("sleeping for %.2fs (attempt %i/%i)", sleeptime_base, _ + 1, attempts)
-            time.sleep(sleeptime_base)
+            log.debug("sleeping for %.2fs (attempt %i/%i)", sleeptime_real, _ + 1, attempts)
+            time.sleep(sleeptime_real)
 
 
 def retry(action, attempts=5, sleeptime=60, max_sleeptime=5 * 60,

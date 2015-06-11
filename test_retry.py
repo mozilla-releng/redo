@@ -223,3 +223,8 @@ class TestRetry(unittest.TestCase):
                 expected = [mock.call(x) for x in (7, 23, 37, 83)]
                 self.assertEquals(sleep.call_args_list, expected)
                 self.assertEquals(randint.call_args, mock.call(-48, 48))
+
+    def test_retrier_yields(self):
+        """Ensure that retrier yields the sleep time"""
+        for real_sleeptime in retrier(attempts=3, sleeptime=1, sleepscale=1, jitter=0):
+            self.assertEquals(real_sleeptime, 1)
