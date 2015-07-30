@@ -1,0 +1,15 @@
+---
+  provisionerId: "aws-provisioner"
+  workerType: "b2gtest"
+  payload:
+    image: "ubuntu:latest"
+    command:
+      - "/bin/bash"
+      - "-c"
+      - "git clone https://github.com/bhearsum/redo && cd redo && ./runtests.sh"
+    maxRunTime: 3600
+  metadata:
+    name: "Redo - Utilities to retry Python callables"
+    description: "Redo - Utilities to retry Python callables"
+    owner: "bhearsum@mozilla.com"
+    source: "https://github.com/bhearsum/redo"
