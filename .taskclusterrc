@@ -1,5 +1,5 @@
 ---
-  provisionerId: "aws-provisioner"
+  provisionerId: "aws-provisioner-v1"
   workerType: "b2gtest"
   payload:
     image: "ubuntu:latest"
