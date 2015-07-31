@@ -75,7 +75,7 @@ def retrier(attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=1.5, jitter=
 
         sleeptime *= sleepscale
 
-        if sleeptime_real > max_sleeptime:
+        if sleeptime_real < max_sleeptime:
             sleeptime_real = max_sleeptime
 
         # Don't need to sleep the last time
