@@ -7,3 +7,11 @@ tasks:
       - "/bin/bash"
       - "-c"
       - "./runtests.sh"
+extra:
+  github_events:
+    - pull_request.*
+  whitelist:
+    orgs:
+      - mozilla
+      - bhearsum
+    users: []
