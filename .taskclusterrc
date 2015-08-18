@@ -1,7 +1,7 @@
 ---
 version: 1
 tasks:
-  payload:
+  - payload:
     image: "ubuntu:latest"
     command:
       - "/bin/bash"
