@@ -2,11 +2,11 @@
 version: 1
 tasks:
   - payload:
-    image: "ubuntu:latest"
-    command:
-      - "/bin/bash"
-      - "-c"
-      - "./runtests.sh"
+      image: "ubuntu:latest"
+      command:
+        - "/bin/bash"
+        - "-c"
+        - "./runtests.sh"
     extra:
       github_events:
         - pull_request.*
