@@ -12,7 +12,6 @@ import random
 log = logging.getLogger(__name__)
 
 
-def retrier(attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=1.5, jitter=1):
     """
     A generator function that sleeps between retries, handles exponential
     backoff and jitter. The action you are retrying is meant to run after
