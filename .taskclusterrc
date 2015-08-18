@@ -1,13 +1,13 @@
 ---
 version: 1
 tasks:
-  payload:
+  - payload:
     image: "ubuntu:latest"
     command:
       - "/bin/bash"
       - "-c"
       - "./runtests.sh"
-  extra:
+  - extra:
     github_events:
       - pull_request.*
     whitelist:
