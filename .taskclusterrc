@@ -2,16 +2,15 @@
 version: 1
 tasks:
   - payload:
-      image: "ubuntu:latest"
+      image: "bhearsum/python-test-runner"
       command:
         - "/bin/bash"
         - "-c"
-        - "./runtests.sh"
+        - "git clone ${GITHUB_HEAD_REPO_URL} && cd redo && git checkout ${GITHUB_HEAD_SHA} && tox -e py27"
     extra:
       github_events:
         - pull_request.*
       whitelist:
         orgs:
-          - mozilla
           - bhearsum
         users: []
