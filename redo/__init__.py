@@ -53,7 +53,7 @@ def retrier(attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=1.5, jitter=
         ...         break
         ...     n += 1
         ... else:
-        ...     print "max tries hit"
+        ...     print("max tries hit")
         max tries hit
     """
     if jitter > sleeptime:
@@ -125,7 +125,7 @@ def retry(action, attempts=5, sleeptime=60, max_sleeptime=5 * 60,
         >>> def foo():
         ...     global count
         ...     count += 1
-        ...     print count
+        ...     print(count)
         ...     if count < 3:
         ...         raise ValueError("count is too small!")
         ...     return "success!"
@@ -180,7 +180,7 @@ def retriable(*retry_args, **retry_kwargs):
         ... def foo():
         ...     global count
         ...     count += 1
-        ...     print count
+        ...     print(count)
         ...     if count < 3:
         ...         raise ValueError("count too small")
         ...     return "success!"
@@ -216,7 +216,7 @@ def retrying(func, *retry_args, **retry_kwargs):
         >>> def foo():
         ...     global count
         ...     count += 1
-        ...     print count
+        ...     print(count)
         ...     if count < 3:
         ...         raise ValueError("count too small")
         ...     return "success!"
