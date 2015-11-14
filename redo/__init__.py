@@ -137,6 +137,16 @@ def retry(action, attempts=5, sleeptime=60, max_sleeptime=5 * 60,
     """
     assert callable(action)
     assert not cleanup or callable(cleanup)
+
+    action_name = getattr(action, '__name__', action)
+    if args or kwargs:
+        log_attempt_format = ("retry: calling %s with args: %s,"
+                              " kwargs: %s, attempt #%%d"
+                              % (action_name, args, kwargs))
+    else:
+        log_attempt_format = ("retry: calling %s, attempt #%%d"
+                              % action_name)
+
     if max_sleeptime < sleeptime:
         log.debug("max_sleeptime %d less than sleeptime %d" % (
             max_sleeptime, sleeptime))
@@ -147,15 +157,14 @@ def retry(action, attempts=5, sleeptime=60, max_sleeptime=5 * 60,
                      jitter=jitter):
         try:
             logfn = log.info if n != 1 else log.debug
-            logfn("retry: Calling %s with args: %s, kwargs: %s, "
-                  "attempt #%d" % (action, str(args), str(kwargs), n))
+            logfn(log_attempt_format, n)
             return action(*args, **kwargs)
         except retry_exceptions:
             log.debug("retry: Caught exception: ", exc_info=True)
             if cleanup:
                 cleanup()
             if n == attempts:
-                log.info("retry: Giving up on %s" % action)
+                log.info("retry: Giving up on %s" % action_name)
                 raise
             continue
         finally:
