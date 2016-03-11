@@ -13,7 +13,7 @@ tasks:
       command:
         - "/bin/bash"
         - "-c"
-        - "git clone {{ event.head.repo.url }} && cd redo && git checkout {{ event.head.repo.branch }} && tox -e py27"
+        - "git clone {{ event.head.repo.url }} && cd redo && git checkout {{ event.head.repo.branch }} && tox"
     extra:
       github:
         env: true
