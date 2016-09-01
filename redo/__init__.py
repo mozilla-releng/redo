@@ -112,7 +112,7 @@ def retry(action, attempts=5, sleeptime=60, max_sleeptime=5 * 60,
                             consider using functools.partial or a lambda
                             function.
         args (tuple): positional arguments to call `action` with
-        hwargs (dict): keyword arguments to call `action` with
+        kwargs (dict): keyword arguments to call `action` with
 
     Returns:
         Whatever action(*args, **kwargs) returns
