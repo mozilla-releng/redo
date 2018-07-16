@@ -9,11 +9,11 @@ tasks:
     workerType: "{{ taskcluster.docker.workerType }}"
     payload:
       maxRunTime: 1200
-      image: "bhearsum/python-test-runner"
+      image: "python/3.7"
       command:
         - "/bin/bash"
         - "-c"
-        - "git clone {{ event.head.repo.url }} && cd redo && git checkout {{ event.head.repo.branch }} && tox"
+        - "git clone {{ event.head.repo.url }} && cd redo && git checkout {{ event.head.repo.branch }} && pip install tox && tox -e py37"
     extra:
       github:
         env: true
