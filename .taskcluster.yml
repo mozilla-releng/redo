@@ -1,27 +1,36 @@
-version: 0
-metadata:
-  name: Redo Task Graph
-  description: Redo
-  owner: "{{ event.head.user.email }}"
-  source: "{{ event.head.repo.url }}"
+version: 1
 tasks:
-  - provisionerId: "{{ taskcluster.docker.provisionerId }}"
-    workerType: "{{ taskcluster.docker.workerType }}"
-    payload:
-      maxRunTime: 1200
-      image: "python/3.7"
-      command:
-        - "/bin/bash"
-        - "-c"
-        - "git clone {{ event.head.repo.url }} && cd redo && git checkout {{ event.head.repo.branch }} && pip install tox && tox -e py37"
-    extra:
-      github:
-        env: true
-        events:
-          - push
-          - pull_request.*
-    metadata:
-      name: Redo Pull Request
-      description: Pull Request
-      owner: "{{ event.head.user.email }}"
-      source: "{{ event.head.repo.url }}"
+  $let:
+    # Github events have this stuff in different places...
+    repo_url: {$if: 'tasks_for == "github-push"',
+               then: '${event.repository.clone_url}'}
+    head_sha: {$if: 'tasks_for == "github-push"',
+               then: '${event.after}'}
+    owner_email: {$if: 'tasks_for == "github-push"',
+                  then: '${event.pusher.email}'}
+  in:
+    $map: [['py37', 'python:3.7'], ['py36', 'python:3.6']]
+    each(py):
+      taskId: "${as_slugid(py[0])}"
+      provisionerId: "aws-provisioner-v1"
+      workerType: "github-worker"
+      created: {$eval: 'now'}
+      deadline: {$fromNow: '1 hour'}
+      payload:
+        maxRunTime: 1200
+        image: {$eval: 'py[1]'}
+        command:
+          - "/bin/bash"
+          - "-c"
+          - "git clone ${repo_url} redo && cd redo && git checkout ${head_sha} && pip install tox && tox -e ${py[0]}"
+      extra:
+        github:
+          env: true
+          events:
+            - push
+            - pull_request.*
+      metadata:
+        name: Redo Pull Request ${py[0]}
+        description: Pull Request ${py[0]}
+        owner: ${owner_email}
+        source: "${repo_url}"
