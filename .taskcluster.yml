@@ -3,11 +3,17 @@ tasks:
   $let:
     # Github events have this stuff in different places...
     repo_url: {$if: 'tasks_for == "github-push"',
-               then: '${event.repository.clone_url}'}
+               then: '${event.repository.clone_url}',
+               # Assume Pull Request
+               else: '${event.pull_request.head.repo.clone_url}'}
     head_sha: {$if: 'tasks_for == "github-push"',
-               then: '${event.after}'}
+               then: '${event.after}',
+               # Assume Pull Request
+               else: '${event.pull_request.head.sha}'}
     owner_email: {$if: 'tasks_for == "github-push"',
-                  then: '${event.pusher.email}'}
+                  then: '${event.pusher.email}',
+                  # Assume Pull Request
+                  else: '${event.pull_request.user.login}@users.noreply.github.com'}
   in:
     $map: [['py37', 'python:3.7'], ['py36', 'python:3.6']]
     each(py):
