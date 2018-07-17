@@ -1,4 +1,6 @@
 version: 1
+policy:
+  pullRequests: public
 tasks:
   $let:
     # Github events have this stuff in different places...
@@ -15,6 +17,7 @@ tasks:
                   # Assume Pull Request
                   else: '${event.pull_request.user.login}@users.noreply.github.com'}
   in:
+    # map tox command -> docker image
     $map: [['py27', 'python:2.7'], ['pypy', 'pypy:2'],
            ['py34', 'python:3.4'], ['py35', 'python:3.5'],
            ['py36', 'python:3.6'], ['py37', 'python:3.7']]
@@ -31,12 +34,6 @@ tasks:
           - "/bin/bash"
           - "-c"
           - "git clone ${repo_url} redo && cd redo && git checkout ${head_sha} && pip install tox && tox -e ${py[0]}"
-      extra:
-        github:
-          env: true
-          events:
-            - push
-            - pull_request.*
       metadata:
         name: Redo Pull Request ${py[0]}
         description: Pull Request ${py[0]}
