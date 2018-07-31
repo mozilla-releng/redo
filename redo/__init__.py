@@ -24,7 +24,7 @@ def retrier(attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=1.5, jitter=
     Args:
         attempts (int): maximum number of times to try; defaults to 5
         sleeptime (float): how many seconds to sleep between tries; defaults to
-                           60s (one minute)
+                           10 seconds
         max_sleeptime (float): the longest we'll sleep, in seconds; defaults to
                                300s (five minutes)
         sleepscale (float): how much to multiply the sleep time by each
