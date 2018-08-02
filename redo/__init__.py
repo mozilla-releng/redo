@@ -87,7 +87,7 @@ def retrier(attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=1.5, jitter=
 
 def retry(action, attempts=5, sleeptime=60, max_sleeptime=5 * 60,
           sleepscale=1.5, jitter=1, retry_exceptions=(Exception,),
-          cleanup=None, args=(), kwargs={}):
+          cleanup=None, args=(), kwargs={}, log_args=True):
     """
     Calls an action function until it succeeds, or we give up.
 
@@ -113,6 +113,8 @@ def retry(action, attempts=5, sleeptime=60, max_sleeptime=5 * 60,
                             function.
         args (tuple): positional arguments to call `action` with
         kwargs (dict): keyword arguments to call `action` with
+        log_args (bool): whether or not to include args and kwargs in log
+                         messages. Defaults to True.
 
     Returns:
         Whatever action(*args, **kwargs) returns
@@ -140,7 +142,7 @@ def retry(action, attempts=5, sleeptime=60, max_sleeptime=5 * 60,
     assert not cleanup or callable(cleanup)
 
     action_name = getattr(action, '__name__', action)
-    if args or kwargs:
+    if log_args and (args or kwargs):
         log_attempt_format = ("retry: calling %s with args: %s,"
                               " kwargs: %s, attempt #%%d"
                               % (action_name, args, kwargs))
