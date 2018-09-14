@@ -215,14 +215,14 @@ class TestRetry(unittest.TestCase):
     def test_retrier_jitter(self):
         with mock.patch("time.sleep") as sleep:
             # Test that jitter works
-            with mock.patch("random.randint") as randint:
-                randint.return_value = 3
+            with mock.patch("random.uniform") as uniform:
+                uniform.return_value = 3
                 for _ in retrier(attempts=5, sleeptime=10, max_sleeptime=300,
                                  sleepscale=2, jitter=3):
-                    randint.return_value *= -1
+                    uniform.return_value *= -1
                 expected = [mock.call(x) for x in (7, 23, 37, 83)]
                 self.assertEquals(sleep.call_args_list, expected)
-                self.assertEquals(randint.call_args, mock.call(-48, 48))
+                self.assertEquals(uniform.call_args, mock.call(-48, 48))
 
     def test_retrier_yields(self):
         """Ensure that retrier yields the sleep time"""

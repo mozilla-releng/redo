@@ -18,7 +18,7 @@ def retrier(attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=1.5, jitter=
     backoff and jitter. The action you are retrying is meant to run after
     retrier yields.
 
-    At each iteration, we sleep for sleeptime + random.randint(-jitter, jitter).
+    At each iteration, we sleep for sleeptime + random.uniform(-jitter, jitter).
     Afterwards sleeptime is multiplied by sleepscale for the next iteration.
 
     Args:
@@ -29,7 +29,7 @@ def retrier(attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=1.5, jitter=
                                300s (five minutes)
         sleepscale (float): how much to multiply the sleep time by each
                             iteration; defaults to 1.5
-        jitter (int): random jitter to introduce to sleep time each iteration.
+        jitter (float): random jitter to introduce to sleep time each iteration.
                       the amount is chosen at random between [-jitter, +jitter]
                       defaults to 1
 
@@ -68,9 +68,9 @@ def retrier(attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=1.5, jitter=
         yield sleeptime_real
 
         if jitter:
-            sleeptime_real = sleeptime + random.randint(-jitter, jitter)
+            sleeptime_real = sleeptime + random.uniform(-jitter, jitter)
             # our jitter should scale along with the sleeptime
-            jitter = int(jitter * sleepscale)
+            jitter = jitter * sleepscale
         else:
             sleeptime_real = sleeptime
 
@@ -100,7 +100,7 @@ def retry(action, attempts=5, sleeptime=60, max_sleeptime=5 * 60,
                                300s (five minutes)
         sleepscale (float): how much to multiply the sleep time by each
                             iteration; defaults to 1.5
-        jitter (int): random jitter to introduce to sleep time each iteration.
+        jitter (float): random jitter to introduce to sleep time each iteration.
                       the amount is chosen at random between [-jitter, +jitter]
                       defaults to 1
         retry_exceptions (tuple): tuple of exceptions to be caught. If other
