@@ -160,8 +160,8 @@ def retry(action, attempts=5, sleeptime=60, max_sleeptime=5 * 60,
                      jitter=jitter):
         try:
             logfn = log.info if n != 1 else log.debug
-            log_attempt_args += (n, )
-            logfn(*log_attempt_args)
+            logfn_args = log_attempt_args + (n, )
+            logfn(*logfn_args)
             return action(*args, **kwargs)
         except retry_exceptions:
             log.debug("retry: Caught exception: ", exc_info=True)
