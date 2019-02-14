@@ -6,6 +6,9 @@
 
 import mock
 import unittest
+import logging
+
+import pytest
 
 from redo import retry, retriable, retrying, retrier
 
@@ -47,6 +50,18 @@ def _raiseCustomException():
     return _succeedOnSecondAttempt(exception=NewError)
 
 
+@pytest.yield_fixture
+def check_logging(caplog):
+    """
+    Ensure that all log messages can be formatted.
+    """
+    caplog.set_level(logging.DEBUG)
+    yield
+    for r in caplog.get_records("call"):
+        r.getMessage()
+
+
+@pytest.mark.usefixtures("check_logging")
 class TestRetry(unittest.TestCase):
     def setUp(self):
         global ATTEMPT_N
