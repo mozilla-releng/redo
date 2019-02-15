@@ -66,7 +66,7 @@ class TestRetry(unittest.TestCase):
     def setUp(self):
         global ATTEMPT_N
         ATTEMPT_N = 1
-        self.sleep_patcher = mock.patch('time.sleep')
+        self.sleep_patcher = mock.patch("time.sleep")
         self.sleep_patcher.start()
 
     def tearDown(self):
@@ -81,8 +81,9 @@ class TestRetry(unittest.TestCase):
         func()
 
     def testRetryFailWithoutCatching(self):
-        self.assertRaises(Exception, retry, _alwaysFail, sleeptime=0, jitter=0,
-                          exceptions=())
+        self.assertRaises(
+            Exception, retry, _alwaysFail, sleeptime=0, jitter=0, exceptions=()
+        )
 
     def testRetriableFailWithoutCatching(self):
         func = retriable(sleeptime=0)(_alwaysFail)
@@ -96,21 +97,35 @@ class TestRetry(unittest.TestCase):
         self.assertRaises(Exception, func)
 
     def testRetrySelectiveExceptionSucceed(self):
-        retry(_raiseCustomException, attempts=2, sleeptime=0, jitter=0,
-              retry_exceptions=(NewError,))
+        retry(
+            _raiseCustomException,
+            attempts=2,
+            sleeptime=0,
+            jitter=0,
+            retry_exceptions=(NewError,),
+        )
 
     def testRetriableSelectiveExceptionSucceed(self):
-        func = retriable(attempts=2, sleeptime=0, jitter=0,
-                         retry_exceptions=(NewError,))(_raiseCustomException)
+        func = retriable(
+            attempts=2, sleeptime=0, jitter=0, retry_exceptions=(NewError,)
+        )(_raiseCustomException)
         func()
 
     def testRetrySelectiveExceptionFail(self):
-        self.assertRaises(NewError, retry, _raiseCustomException, attempts=2,
-                          sleeptime=0, jitter=0, retry_exceptions=(OtherError,))
+        self.assertRaises(
+            NewError,
+            retry,
+            _raiseCustomException,
+            attempts=2,
+            sleeptime=0,
+            jitter=0,
+            retry_exceptions=(OtherError,),
+        )
 
     def testRetriableSelectiveExceptionFail(self):
-        func = retriable(attempts=2, sleeptime=0, jitter=0,
-                         retry_exceptions=(OtherError,))(_raiseCustomException)
+        func = retriable(
+            attempts=2, sleeptime=0, jitter=0, retry_exceptions=(OtherError,)
+        )(_raiseCustomException)
         self.assertRaises(NewError, func)
 
     def testRetryWithSleep(self):
@@ -150,20 +165,22 @@ class TestRetry(unittest.TestCase):
 
     def testRetriableCleanupIsCalled(self):
         cleanup = mock.Mock()
-        func = retriable(cleanup=cleanup, sleeptime=0, jitter=0)(_succeedOnSecondAttempt)
+        func = retriable(cleanup=cleanup, sleeptime=0, jitter=0)(
+            _succeedOnSecondAttempt
+        )
         func()
         self.assertEqual(cleanup.call_count, 1)
 
     def testRetryArgsPassed(self):
-        args = (1, 'two', 3)
-        kwargs = dict(foo='a', bar=7)
+        args = (1, "two", 3)
+        kwargs = dict(foo="a", bar=7)
         ret = retry(_mirrorArgs, args=args, kwargs=kwargs.copy(), sleeptime=0, jitter=0)
         self.assertEqual(ret[0], args)
         self.assertEqual(ret[1], kwargs)
 
     def testRetriableArgsPassed(self):
-        args = (1, 'two', 3)
-        kwargs = dict(foo='a', bar=7)
+        args = (1, "two", 3)
+        kwargs = dict(foo="a", bar=7)
         func = retriable(sleeptime=0, jitter=0)(_mirrorArgs)
         ret = func(*args, **kwargs)
         self.assertEqual(ret[0], args)
@@ -172,8 +189,10 @@ class TestRetry(unittest.TestCase):
     def test_retrying_id(self):
         """Make sure that the context manager doesn't change the original
         callable"""
+
         def wrapped():
             pass
+
         before = id(wrapped)
         with retrying(wrapped) as w:
             within = id(w)
@@ -183,13 +202,16 @@ class TestRetry(unittest.TestCase):
 
     def test_retrying_call_retry(self):
         """Make sure to distribute retry and function args/kwargs properly"""
+
         def wrapped(*args, **kwargs):
             pass
+
         with mock.patch("redo.retry") as mocked_retry:
             with retrying(wrapped, 1, x="y") as w:
                 w("a", b=1, c="a")
             mocked_retry.assert_called_once_with(
-                wrapped, 1, x='y', args=('a',), kwargs={'c': 'a', 'b': 1})
+                wrapped, 1, x="y", args=("a",), kwargs={"c": "a", "b": 1}
+            )
 
     def test_retrier(self):
         """Make sure retrier behaves properly"""
@@ -202,7 +224,9 @@ class TestRetry(unittest.TestCase):
         """Make sure retrier sleep is behaving"""
         with mock.patch("time.sleep") as sleep:
             # Test that normal sleep scaling works
-            for _ in retrier(attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=2, jitter=0):
+            for _ in retrier(
+                attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=2, jitter=0
+            ):
                 pass
             expected = [mock.call(x) for x in (10, 20, 40, 80)]
             self.assertEqual(sleep.call_args_list, expected)
@@ -211,7 +235,9 @@ class TestRetry(unittest.TestCase):
         """Make sure retrier sleep is behaving"""
         with mock.patch("time.sleep") as sleep:
             # Test that normal sleep scaling works without a jitter
-            for _ in retrier(attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=2, jitter=None):
+            for _ in retrier(
+                attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=2, jitter=None
+            ):
                 pass
             expected = [mock.call(x) for x in (10, 20, 40, 80)]
             self.assertEqual(sleep.call_args_list, expected)
@@ -219,7 +245,9 @@ class TestRetry(unittest.TestCase):
     def test_retrier_maxsleep(self):
         with mock.patch("time.sleep") as sleep:
             # Test that max sleep time works
-            for _ in retrier(attempts=5, sleeptime=10, max_sleeptime=30, sleepscale=2, jitter=0):
+            for _ in retrier(
+                attempts=5, sleeptime=10, max_sleeptime=30, sleepscale=2, jitter=0
+            ):
                 pass
             expected = [mock.call(x) for x in (10, 20, 30, 30)]
             self.assertEqual(sleep.call_args_list, expected)
@@ -232,8 +260,9 @@ class TestRetry(unittest.TestCase):
             # Test that jitter works
             with mock.patch("random.uniform") as uniform:
                 uniform.return_value = 3
-                for _ in retrier(attempts=5, sleeptime=10, max_sleeptime=300,
-                                 sleepscale=2, jitter=3):
+                for _ in retrier(
+                    attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=2, jitter=3
+                ):
                     uniform.return_value *= -1
                 expected = [mock.call(x) for x in (7, 23, 37, 83)]
                 self.assertEqual(sleep.call_args_list, expected)
