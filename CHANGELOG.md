@@ -1,3 +1,9 @@
+# 2.0.3
+
+* Fix formatting of logs of retry attempts. Contributed by @nolanlum
+* Fix deprecation warning in tests.
+* Reformat code with black.
+
 # 2.0.2
 
 * Fix support in `redo.cmd` for commands with arguments.
