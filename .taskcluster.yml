@@ -20,7 +20,8 @@ tasks:
     # map tox command -> docker image
     $map: [['py27', 'python:2.7'], ['pypy', 'pypy:2'],
            ['py34', 'python:3.4'], ['py35', 'python:3.5'],
-           ['py36', 'python:3.6'], ['py37', 'python:3.7']]
+           ['py36', 'python:3.6'], ['py37', 'python:3.7'],
+           ['py37-black', 'python:3.7']]
     each(py):
       taskId: "${as_slugid(py[0])}"
       provisionerId: "aws-provisioner-v1"
