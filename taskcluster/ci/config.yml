@@ -1,0 +1,21 @@
+---
+trust-domain: releng
+
+task-priority: lowest
+taskgraph:
+    repositories:
+        releng:
+            name: Redo
+
+workers:
+    aliases:
+        images:
+            provisioner: releng-{level}
+            implementation: docker-worker
+            os: linux
+            worker-type: linux
+        t-linux:
+            provisioner: releng-t
+            implementation: docker-worker
+            os: linux
+            worker-type: linux

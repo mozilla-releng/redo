@@ -1,0 +1,34 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+
+loader: taskgraph.loader.transform:loader
+
+transforms:
+    - redo_taskgraph:transforms
+    - taskgraph.transforms.job:transforms
+    - taskgraph.transforms.task:transforms
+
+job-defaults:
+    attributes: {}
+    worker-type: t-linux
+    worker:
+        max-run-time: 3600
+
+jobs:
+    py27:
+        python-version: "2.7"
+    py34:
+        python-version: "3.4"
+    py35:
+        python-version: "3.5"
+    py36:
+        python-version: "3.6"
+    py37:
+        python-version: "3.7"
+    py38:
+        python-version: "3.8"
+    check:
+        python-version: "3.7"
+        tox-environment: check
