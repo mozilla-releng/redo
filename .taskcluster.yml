@@ -12,31 +12,60 @@ tasks:
                then: '${event.after}',
                # Assume Pull Request
                else: '${event.pull_request.head.sha}'}
+    head_ref: {$if: 'tasks_for == "github-push"',
+               then: '${event.ref}',
+               # Assume Pull Request
+               else: 'refs/heads/${event.pull_request.head.ref}'}
     owner_email: {$if: 'tasks_for == "github-push"',
                   then: '${event.pusher.email}',
                   # Assume Pull Request
                   else: '${event.pull_request.user.login}@users.noreply.github.com'}
+    repo_full_name: {$if: 'tasks_for == "github-push"',
+                     then: '${event.repository.full_name}',
+                     # Assume Pull Request
+                     else: '${event.pull_request.base.repo.full_name}'}
+    repo_html_url: {$if: 'tasks_for == "github-push"',
+                    then: '${event.repository.html_url}',
+                    # Assume Pull Request
+                    else: '${event.pull_request.head.repo.html_url}'}
   in:
-    # map tox command -> docker image
-    $map: [['py27', 'python:2.7'], ['pypy', 'pypy:2'],
-           ['py34', 'python:3.4'], ['py35', 'python:3.5'],
-           ['py36', 'python:3.6'], ['py37', 'python:3.7'],
-           ['py37-black', 'python:3.7']]
-    each(py):
-      taskId: "${as_slugid(py[0])}"
-      provisionerId: "aws-provisioner-v1"
-      workerType: "github-worker"
-      created: {$eval: 'now'}
-      deadline: {$fromNow: '1 hour'}
-      payload:
-        maxRunTime: 1200
-        image: {$eval: 'py[1]'}
-        command:
-          - "/bin/bash"
-          - "-c"
-          - "git clone ${repo_url} redo && cd redo && git checkout ${head_sha} && pip install tox && tox -e ${py[0]}"
-      metadata:
-        name: Redo Pull Request ${py[0]}
-        description: Pull Request ${py[0]}
-        owner: ${owner_email}
-        source: "${repo_url}"
+    - $if: 'tasks_for in ["github-pull-request"]'
+      then:
+        taskId: '${as_slugid("decision")}'
+        taskGroupId: '${as_slugid("decision")}'
+        schedulerId: 'taskcluster-github'
+        created: {$fromNow: ''}
+        deadline: {$fromNow: '1 day'}
+        expires: {$fromNow: '1 year 1 second'}  # 1 second so artifacts expire first, despite rounding errors
+        provisionerId: 'aws-provisioner-v1'
+        workerType: 'github-worker'
+        scopes:
+          - assume:repo:github.com/${event.pull_request.base.repo.full_name}:pull-request
+        metadata:
+          name: Redo Pull Request
+          description: Pull Request
+          owner: '${owner_email}'
+          source: '${repo_url}'
+
+        payload:
+          maxRunTime: 3600
+          env:
+            DECISIONLIB_TRUST_LEVEL: 1
+            DECISIONLIB_DECISION_TASK_ID: '${as_slugid("decision")}'
+            DECISIONLIB_SCHEDULER_ID: 'taskcluster-github'
+            DECISIONLIB_DATE: ${now}
+            DECISIONLIB_CHECKOUT_REF: ${head_ref}
+            DECISIONLIB_OWNER: ${event.sender.login}@users.noreply.github.com
+            DECISIONLIB_SOURCE: ${repo_html_url}/raw/${head_sha}/.taskcluster.yml
+          features:
+            taskclusterProxy: true
+          image: python:3
+          command:
+            - /bin/bash
+            - --login
+            - -cx
+            - >-
+              git clone ${repo_url}
+              && cd redo
+              && pip install "decisionlib-mhentges==0.0.53"
+              && python decision.py
