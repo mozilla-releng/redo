@@ -1,4 +1,4 @@
-from decisionlib.decisionlib import Scheduler, ShellTask, TaskclusterQueue, Checkout, Trigger
+from decisionlib.decisionlib import Scheduler, ShellTask
 
 
 def task(tox_command, docker_image):
@@ -16,7 +16,7 @@ def task(tox_command, docker_image):
 
 def main():
     scheduler = Scheduler()
-    for python_config in (
+    for tox_command, docker_image in (
             ('pypy', 'pypy:2'),
             ('py27', 'python:2.7'),
             ('py34', 'python:3.4'),
@@ -25,13 +25,9 @@ def main():
             ('py37', 'python:3.7'),
             ('py37-black', 'python:3.7'),
     ):
-        task(python_config[0], python_config[1]).schedule(scheduler)
+        task(tox_command, docker_image).schedule(scheduler)
 
-    scheduler.schedule_tasks(
-        TaskclusterQueue.from_environment(),
-        Checkout.from_environment(),
-        Trigger.from_environment()
-    )
+    scheduler.schedule_tasks_with_environment_config()
 
 
 if __name__ == '__main__':

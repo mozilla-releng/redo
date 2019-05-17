@@ -4,10 +4,10 @@ policy:
 tasks:
   $let:
     # Github events have this stuff in different places...
-    repo_url: {$if: 'tasks_for == "github-push"',
-               then: '${event.repository.clone_url}',
-               # Assume Pull Request
-               else: '${event.pull_request.head.repo.clone_url}'}
+    repo_html_url: {$if: 'tasks_for == "github-push"',
+                    then: '${event.repository.html_url}',
+                    # Assume Pull Request
+                    else: '${event.pull_request.head.repo.html_url}'}
     head_sha: {$if: 'tasks_for == "github-push"',
                then: '${event.after}',
                # Assume Pull Request
@@ -20,23 +20,12 @@ tasks:
                   then: '${event.pusher.email}',
                   # Assume Pull Request
                   else: '${event.pull_request.user.login}@users.noreply.github.com'}
-    repo_full_name: {$if: 'tasks_for == "github-push"',
-                     then: '${event.repository.full_name}',
-                     # Assume Pull Request
-                     else: '${event.pull_request.base.repo.full_name}'}
-    repo_html_url: {$if: 'tasks_for == "github-push"',
-                    then: '${event.repository.html_url}',
-                    # Assume Pull Request
-                    else: '${event.pull_request.head.repo.html_url}'}
   in:
     - $if: 'tasks_for in ["github-pull-request"]'
       then:
         taskId: '${as_slugid("decision")}'
-        taskGroupId: '${as_slugid("decision")}'
-        schedulerId: 'taskcluster-github'
         created: {$fromNow: ''}
-        deadline: {$fromNow: '1 day'}
-        expires: {$fromNow: '1 year 1 second'}  # 1 second so artifacts expire first, despite rounding errors
+        deadline: {$fromNow: '1 hour'}
         provisionerId: 'aws-provisioner-v1'
         workerType: 'github-worker'
         scopes:
@@ -45,12 +34,10 @@ tasks:
           name: Redo Pull Request
           description: Pull Request
           owner: '${owner_email}'
-          source: '${repo_url}'
-
+          source: ${repo_html_url}/raw/${head_sha}/.taskcluster.yml
         payload:
           maxRunTime: 3600
           env:
-            DECISIONLIB_TRUST_LEVEL: 1
             DECISIONLIB_DECISION_TASK_ID: '${as_slugid("decision")}'
             DECISIONLIB_SCHEDULER_ID: 'taskcluster-github'
             DECISIONLIB_DATE: ${now}
@@ -65,7 +52,5 @@ tasks:
             - --login
             - -cx
             - >-
-              git clone ${repo_url}
-              && cd redo
-              && pip install "decisionlib-mhentges==0.0.53"
-              && python decision.py
+              pip install decisionlib-mhentges
+              && decisionlib schedule --ref ${head_ref} ${repo_html_url} decision.py
