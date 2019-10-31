@@ -24,8 +24,8 @@ tasks:
            ['py37-black', 'python:3.7']]
     each(py):
       taskId: "${as_slugid(py[0])}"
-      provisionerId: "aws-provisioner-v1"
-      workerType: "github-worker"
+      provisionerId: "proj-redo"
+      workerType: "ci"
       created: {$eval: 'now'}
       deadline: {$fromNow: '1 hour'}
       payload:
