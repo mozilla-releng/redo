@@ -1,0 +1,13 @@
+include pyproject.toml
+include setup.cfg
+include setup.py
+
+recursive-include src *
+
+recursive-exclude tests *
+
+exclude AUTHORS
+exclude CODE_OF_CONDUCT.md
+exclude HISTORY.rst
+exclude README.rst
+exclude tox.ini
