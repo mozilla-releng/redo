@@ -4,10 +4,13 @@ include setup.py
 
 recursive-include src *
 
-recursive-exclude tests *
-
+exclude .taskcluster.yml
 exclude AUTHORS
 exclude CODE_OF_CONDUCT.md
+exclude Dockerfile.test
 exclude HISTORY.rst
 exclude README.rst
+exclude tests
 exclude tox.ini
+
+recursive-exclude tests *
