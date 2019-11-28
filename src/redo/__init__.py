@@ -95,6 +95,7 @@ def retry(
     jitter=1,
     retry_exceptions=(Exception,),
     cleanup=None,
+    retry_ending=None,
     args=(),
     kwargs={},
     log_args=True,
@@ -122,6 +123,8 @@ def retry(
                             function; if your cleanup requires arguments,
                             consider using functools.partial or a lambda
                             function.
+        retry_ending (callable): optional; called if all attempts completed.
+                                 Default arguments assigned from acion function.
         args (tuple): positional arguments to call `action` with
         kwargs (dict): keyword arguments to call `action` with
         log_args (bool): whether or not to include args and kwargs in log
@@ -151,6 +154,7 @@ def retry(
     """
     assert callable(action)
     assert not cleanup or callable(cleanup)
+    assert not retry_ending or callable(retry_ending)
 
     action_name = getattr(action, "__name__", action)
     if log_args and (args or kwargs):
@@ -174,6 +178,8 @@ def retry(
                 cleanup()
             if n == attempts:
                 log.info("retry: Giving up on %s", action_name)
+                if retry_ending:
+                    retry_ending(*args, **kwargs)
                 raise
             continue
         finally:

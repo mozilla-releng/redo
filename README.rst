@@ -77,11 +77,12 @@ Calls an action function until it succeeds, or we give up.
 6. **jitter (int):** random jitter to introduce to sleep time each iteration. The amount is chosen at random between ``[-jitter, +jitter]`` defaults to 1
 7. **retry_exceptions (tuple):** tuple of exceptions to be caught. If other exceptions are raised by ``action()``, then these are immediately re-raised to the caller.
 8. **cleanup (callable):** optional; called if one of ``retry_exceptions`` is caught. No arguments are passed to the cleanup function; if your cleanup requires arguments, consider using ``functools.partial`` or a ``lambda`` function.
-9. **args (tuple):** positional arguments to call ``action`` with
-10. **kwargs (dict):** keyword arguments to call ``action`` with
+9. **retry_ending (callable):** optional; called if all attempts completed. Default arguments assigned from acion function.
+10. **args (tuple):** positional arguments to call ``action`` with
+11. **kwargs (dict):** keyword arguments to call ``action`` with
 
 **Output:** Whatever action(\*args, \*\*kwargs) returns
- 
+
 **Output:** Whatever action(\*args, \*\*kwargs) raises. ``retry_exceptions`` are caught up until the last attempt, in which case they are re-raised.
 
 **Example:**

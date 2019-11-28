@@ -34,3 +34,6 @@ nosetests.xml
 
 # Docs
 _build
+
+# VSCode
+.vscode/
