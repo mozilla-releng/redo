@@ -3,11 +3,14 @@ try:
 except ImportError:
     from distutils.core import find_packages, setup
 
+with open('README.rst') as f:
+    long_description = f.read()
 
 setup(
     name="redo",
     version="2.0.3",
     description="Utilities to retry Python callables.",
+    long_description=long_description,
     author="Ben Hearsum",
     author_email="ben@hearsum.ca",
     packages=find_packages("src"),
