@@ -4,6 +4,7 @@ include setup.py
 
 recursive-include src *
 
+exclude .dirschema.yml
 exclude .taskcluster.yml
 exclude AUTHORS
 exclude CODE_OF_CONDUCT.md
