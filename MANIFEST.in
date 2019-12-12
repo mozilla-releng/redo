@@ -1,6 +1,7 @@
 include pyproject.toml
 include setup.cfg
 include setup.py
+include README.rst
 
 recursive-include src *
 
@@ -9,7 +10,6 @@ exclude AUTHORS
 exclude CODE_OF_CONDUCT.md
 exclude Dockerfile.test
 exclude HISTORY.rst
-exclude README.rst
 exclude tests
 exclude tox.ini
 
