@@ -12,8 +12,11 @@ from redo import retrying
 log = logging.getLogger(__name__)
 
 
-def main(argv):
+def main(argv=None):
     from argparse import ArgumentParser, REMAINDER
+
+    if argv is None:
+        argv = sys.argv
 
     parser = ArgumentParser()
     parser.add_argument("-a", "--attempts", type=int, default=5, help="How many times to retry.")
@@ -53,4 +56,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    main(sys.argv)
+    main()
