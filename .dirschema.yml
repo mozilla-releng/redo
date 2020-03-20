@@ -1,0 +1,8 @@
+repos:
+  schema: https://raw.githubusercontent.com/mozilla-releng/releng-dirschemas/master/repo.yaml
+  projects:
+    - /
+libs:
+  schema: https://raw.githubusercontent.com/mozilla-releng/releng-dirschemas/master/python-lib.yaml
+  projects:
+    - /
