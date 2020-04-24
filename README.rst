@@ -103,7 +103,7 @@ Calls an action function until it succeeds, or we give up.
     'success!'
 
 retriable(\*retry_args, \*\*retry_kwargs)
---------------------------------------
+-----------------------------------------
 
 A decorator factory for ``retry()``. Wrap your function in ``@retriable(...)`` to give it retry powers!
 
@@ -131,7 +131,7 @@ A decorator factory for ``retry()``. Wrap your function in ``@retriable(...)`` t
     'success!'
 
 retrying(func, \*retry_args, \*\*retry_kwargs)
--------------------------------------------
+----------------------------------------------
 
 A context manager for wrapping functions with retry functionality.
 
