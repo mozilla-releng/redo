@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 
 
 def main(argv=None):
-    from argparse import ArgumentParser, REMAINDER
+    from argparse import REMAINDER, ArgumentParser
 
     if argv is None:
         argv = sys.argv

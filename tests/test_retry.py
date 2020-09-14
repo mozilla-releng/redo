@@ -9,6 +9,7 @@ import unittest
 
 import mock
 import pytest
+
 from redo import retriable, retrier, retry, retrying
 
 ATTEMPT_N = 1
