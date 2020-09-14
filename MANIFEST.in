@@ -2,6 +2,7 @@ include pyproject.toml
 include setup.cfg
 include setup.py
 include README.rst
+include LICENSE
 
 recursive-include src *
 
