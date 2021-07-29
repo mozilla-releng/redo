@@ -17,4 +17,8 @@ setup(
     package_dir={"": "src"},
     entry_points={"console_scripts": ["retry = redo.cmd:main"]},
     url="https://github.com/mozilla-releng/redo",
+    license='MPL-2.0',
+    classifiers=[
+        'License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)',
+    ],
 )
