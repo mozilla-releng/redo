@@ -1,3 +1,5 @@
+TEST
+
 Redo - Utilities to retry Python callables
 ==========================================
 
