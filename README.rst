@@ -4,7 +4,7 @@ Redo - Utilities to retry Python callables
 Introduction
 ************
 
-Redo provides various means to add seamless ability to retry to any Python callable. Redo includes a plain function ``(redo.retry)``, a decorator ``(redo.retriable)``, and a context manager ``(redo.retrying)`` to enable you to integrate it in the best possible way for your project. As a bonus, a standalone interface is also included ``("retry")``.
+Redo provides various means to add seamless ability to retry to any Python callable. Redo includes plain functions (``redo.retry``, ``redo.retry_async``), decorators (``redo.retriable``, ``redo.retriable_async``), and a context manager (``redo.retrying``) to enable you to integrate it in the best possible way for your project. As a bonus, a standalone interface is also included (``"retry"``).
 
 Installation
 ************
@@ -22,7 +22,9 @@ Below is the list of functions available
 
 * retrier
 * retry
+* retry_async
 * retriable
+* retriable_async
 * retrying (contextmanager)
 
 retrier(attempts=5, sleeptime=10, max_sleeptime=300, sleepscale=1.5, jitter=1)
@@ -102,6 +104,31 @@ Calls an action function until it succeeds, or we give up.
     3
     'success!'
 
+retry_async(func, attempts=5, sleeptime_callback=calculate_sleep_time, retry_exceptions=Exception, args=(), kwargs={}, sleeptime_kwargs=None)
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+An asynchronous function that retries a given async callable.
+
+**Arguments Detail:**
+
+1. **func (function):** an awaitable function to retry
+2. **attempts (int):** maximum number of attempts; defaults to 5
+3. **sleeptime_callback (function):** function to determine sleep time after each attempt; defaults to `calculateSleepTime`
+4. **retry_exceptions (list or exception):** exceptions to retry on; defaults to `Exception`
+5. **args (list):** arguments to pass to `func`
+6. **kwargs (dict):** keyword arguments to pass to `func`
+7. **sleeptime_kwargs (dict):** keyword arguments to pass to `sleeptime_callback`
+
+**Output:** The value from a successful `func` call or raises an exception after exceeding attempts.
+
+**Example:**
+
+::
+
+    >>> async def async_action():
+    ...     # Your async code here
+    >>> result = await retry_async(async_action)
+
 retriable(\*retry_args, \*\*retry_kwargs)
 -----------------------------------------
 
@@ -129,6 +156,27 @@ A decorator factory for ``retry()``. Wrap your function in ``@retriable(...)`` t
     2
     3
     'success!'
+
+retriable_async(retry_exceptions=Exception, sleeptime_kwargs=None)
+------------------------------------------------------------------
+
+A decorator for asynchronously retrying a function.
+
+**Arguments Detail:**
+
+1. **retry_exceptions (list or exception):** exceptions to retry on; defaults to `Exception`
+2. **sleeptime_kwargs (dict):** keyword arguments to pass to the sleeptime callback
+
+**Output:** A function decorator that applies `retry_async` to the decorated function.
+
+**Example:**
+
+::
+
+    >>> @retriable_async()
+    ... async def async_action():
+    ...     # Your async code here
+    >>> result = await async_action()
 
 retrying(func, \*retry_args, \*\*retry_kwargs)
 ----------------------------------------------
