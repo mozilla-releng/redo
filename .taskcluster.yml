@@ -18,10 +18,19 @@ tasks:
                   else: '${event.pull_request.user.login}@users.noreply.github.com'}
   in:
     # map tox command -> docker image
-    $map: [['py27', 'python:2.7'], ['pypy', 'pypy:2'],
-           ['py34', 'python:3.4'], ['py35', 'python:3.5'],
-           ['py36', 'python:3.6'], ['py37', 'python:3.7'],
-           ['py38', 'python:3.8'], ['check', 'python:3.7']]
+    $map:
+      - - py38
+        - python:3.8
+      - - py39
+        - python:3.9
+      - - py310
+        - python:3.10
+      - - py311
+        - python:3.11
+      - - py312
+        - python:3.12
+      - - check
+        - python:3.12
     each(py):
       taskId: "${as_slugid(py[0])}"
       provisionerId: "proj-releng"
