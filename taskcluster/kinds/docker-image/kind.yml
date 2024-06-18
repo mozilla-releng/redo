@@ -1,0 +1,29 @@
+---
+loader: taskgraph.loader.transform:loader
+
+transforms:
+    - taskgraph.transforms.docker_image:transforms
+    - taskgraph.transforms.cached_tasks:transforms
+    - taskgraph.transforms.task:transforms
+
+tasks:
+    py38:
+        definition: python
+        args:
+            PYTHON_VERSION: "3.8"
+    py39:
+        definition: python
+        args:
+            PYTHON_VERSION: "3.9"
+    py310:
+        definition: python
+        args:
+            PYTHON_VERSION: "3.10"
+    py311:
+        definition: python
+        args:
+            PYTHON_VERSION: "3.11"
+    py312:
+        definition: python
+        args:
+            PYTHON_VERSION: "3.12"
