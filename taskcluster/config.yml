@@ -1,0 +1,22 @@
+---
+trust-domain: "mozilla"
+task-priority: low
+
+taskgraph:
+  cached-task-prefix: "mozilla.v2.redo"
+  repositories:
+    redo:
+      name: "redo"
+
+workers:
+  aliases:
+    images:
+      provisioner: '{trust-domain}-{level}'
+      implementation: docker-worker
+      os: linux
+      worker-type: '{alias}-gcp'
+    linux:
+      provisioner: '{trust-domain}-t'
+      implementation: docker-worker
+      os: linux
+      worker-type: 't-{alias}-large-gcp'
