@@ -1,4 +1,18 @@
 #####
+2.0.4
+#####
+
+* Add Mozilla code of conduct
+* Improve formatting with black
+* Update taskcluster.yml
+* Improve testing with tox
+* Update MANIFEST file
+* Add .dirschema.yml file
+* Fix rst headings
+* Add LICENSE file
+* Fix linting failures
+
+#####
 2.0.3
 #####
 
