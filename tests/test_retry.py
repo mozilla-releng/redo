@@ -50,7 +50,7 @@ def _raiseCustomException():
     return _succeedOnSecondAttempt(exception=NewError)
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def check_logging(caplog):
     """
     Ensure that all log messages can be formatted.
