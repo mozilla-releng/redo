@@ -1,4 +1,13 @@
 #####
+3.0.0
+#####
+
+* Drop support to python 2.x
+* Support newer python versions 3.9, 3.10, 3.11 and 3.12
+* Add support to async functions/coroutines
+* Setup CI tasks using taskgraph with new python versions
+
+#####
 2.0.4
 #####
 
