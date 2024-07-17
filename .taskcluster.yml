@@ -96,7 +96,7 @@ tasks:
           in:
               $if: >
                   tasks_for in ["action", "pr-action", "cron"]
-                  || (tasks_for == "github-push" && short_head_ref == "main")
+                  || (tasks_for == "github-push" && short_head_ref == "master")
                   || (isPullRequest && pullRequestAction in ["opened", "reopened", "synchronize"])
               then:
                   taskId: {$if: 'tasks_for != "action" && tasks_for != "pr-action"', then: '${ownTaskId}'}
