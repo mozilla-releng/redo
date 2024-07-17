@@ -8,7 +8,7 @@ with open("README.rst") as f:
 
 setup(
     name="redo",
-    version="2.0.4",
+    version="3.0.0",
     description="Utilities to retry Python callables.",
     long_description=long_description,
     author="Ben Hearsum",
@@ -20,5 +20,10 @@ setup(
     license="MPL-2.0",
     classifiers=[
         "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
     ],
 )
