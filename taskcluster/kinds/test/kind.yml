@@ -25,7 +25,6 @@ task-defaults:
         max-run-time: 1800
     run:
         using: run-task
-        cache-dotcache: false
         cwd: '{checkout}'
         command:
             - sh
