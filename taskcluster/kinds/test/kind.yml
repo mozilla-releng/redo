@@ -2,36 +2,27 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ---
-loader: taskgraph.loader.transform:loader
-
 kind-dependencies:
     - docker-image
 
 transforms:
-    - redo_taskgraph.transforms.python_version:transforms
-    - taskgraph.transforms.run:transforms
-    - taskgraph.transforms.task:transforms
-
-task-defaults:
-    description: "{name} py{python_version}"
-    run-on-tasks-for:
-        - "github-pull-request"
-        - "github-push"
-    attributes:
-        code-review: true
-    worker-type: linux
-    worker:
-        docker-image: {in-tree: 'py{python_version}'}
-        max-run-time: 1800
-    run:
-        using: run-task
-        cwd: '{checkout}'
-        command:
-            - sh
-            - -lxce
-            - >-
-              tox -e py{python_version}
+    - taskgraph.transforms.matrix
 
 tasks:
     tox:
-        python-versions: [38, 39, 310, 311, 312]
+        matrix:
+            python: ['38', '39', '310', '311', '312']
+        description: "tox py{matrix[python]}"
+        run-on-tasks-for:
+            - "github-pull-request"
+            - "github-push"
+        attributes:
+            code-review: true
+        worker-type: linux
+        worker:
+            docker-image: {in-tree: 'py{matrix[python]}'}
+            max-run-time: 1800
+        run:
+            using: run-task
+            cwd: '{{checkout}}'
+            command: tox -e py{matrix[python]}
