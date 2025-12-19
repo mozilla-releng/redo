@@ -6,11 +6,14 @@
 FROM python:$PYTHON_VERSION-slim
 LABEL maintainer="Release Engineering <release@mozilla.com>"
 
+VOLUME /builds/worker/checkouts
+VOLUME /builds/worker/.cache
+
 # Add worker user
-RUN mkdir /builds && \
+RUN mkdir -p /builds && \
     useradd -d /builds/worker -s /bin/bash -m worker && \
     mkdir /builds/worker/artifacts && \
-    chown worker:worker /builds/worker/artifacts
+    chown -R worker:worker /builds/worker
 
 # %include-run-task
 
@@ -26,9 +29,6 @@ RUN pip install tox
 ENV SHELL=/bin/bash \
     HOME=/builds/worker \
     PATH=/builds/worker/.local/bin:$PATH
-
-VOLUME /builds/worker/checkouts
-VOLUME /builds/worker/.cache
 
 # Set a default command useful for debugging
 CMD ["/bin/bash", "--login"]
