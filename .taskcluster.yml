@@ -231,7 +231,7 @@ tasks:
                           features:
                               taskclusterProxy: true
 
-                          image: mozillareleases/taskgraph:decision-v21.0.0@sha256:79091767b31dff55b1d4e89851afe77f387139c4699e008245b14fa08b51c0ff
+                          image: mozillareleases/taskgraph:decision-v23.0.0@sha256:3654f72ea7df1e0b9cb1c2a30dd9f4365138e3e86c4fc4948dc463c69f134aee
                           maxRunTime: 1800
 
                           command:
