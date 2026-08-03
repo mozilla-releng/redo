@@ -14,6 +14,7 @@ tasks:
             python: ['38', '39', '310', '311', '312']
         description: "tox py{matrix[python]}"
         run-on-tasks-for:
+            - "github-pull-request-untrusted"
             - "github-pull-request"
             - "github-push"
         attributes:
