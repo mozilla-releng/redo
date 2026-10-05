@@ -8,7 +8,7 @@ with open("README.rst") as f:
 
 setup(
     name="redo",
-    version="3.0.0",
+    version="3.0.1",
     description="Utilities to retry Python callables.",
     long_description=long_description,
     author="Ben Hearsum",

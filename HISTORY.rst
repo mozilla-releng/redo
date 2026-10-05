@@ -1,4 +1,10 @@
 #####
+3.0.1
+#####
+
+* Fix async retries for callables without names (#109)
+
+#####
 3.0.0
 #####
 
