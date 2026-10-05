@@ -1,3 +1,6 @@
+import functools
+import logging
+
 import mock
 import pytest
 
@@ -23,6 +26,64 @@ async def fail_first(*args, **kwargs):
 
 async def fake_sleep(*args, **kwargs):
     pass
+
+
+class AsyncCallable:
+    def __init__(self, func):
+        self.func = func
+
+    async def __call__(self, *args, **kwargs):
+        return await self.func(*args, **kwargs)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("callable_factory", [functools.partial, AsyncCallable])
+async def test_retry_async_callable_recovers(callable_factory, caplog):
+    calls = []
+
+    async def action(value, *, suffix):
+        calls.append((value, suffix))
+        if len(calls) == 1:
+            raise ValueError("retry")
+        return value + suffix
+
+    func = callable_factory(action)
+    sleep_time = mock.Mock(return_value=0)
+    with caplog.at_level(logging.DEBUG, logger="redo"):
+        result = await retry_async(
+            func,
+            retry_exceptions=ValueError,
+            sleeptime_callback=sleep_time,
+            args=("hello",),
+            kwargs={"suffix": " world"},
+        )
+
+    assert result == "hello world"
+    assert calls == [("hello", " world"), ("hello", " world")]
+    sleep_time.assert_called_once_with(2)
+    assert "{}: sleeping 0 seconds before retry".format(func) in caplog.text
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("callable_factory", [functools.partial, AsyncCallable])
+@pytest.mark.parametrize("attempts", [1, 3])
+async def test_retry_async_callable_preserves_final_exception(callable_factory, attempts, caplog):
+    calls = []
+    error = ValueError("failed action")
+
+    async def action():
+        calls.append(None)
+        raise error
+
+    func = callable_factory(action)
+    sleep_time = mock.Mock(return_value=0)
+    with pytest.raises(ValueError) as exc:
+        await retry_async(func, attempts=attempts, retry_exceptions=ValueError, sleeptime_callback=sleep_time)
+
+    assert exc.value is error
+    assert len(calls) == attempts
+    assert sleep_time.call_args_list == [mock.call(attempt) for attempt in range(2, attempts + 1)]
+    assert "{}: too many retries!".format(func) in caplog.text
 
 
 @pytest.mark.asyncio

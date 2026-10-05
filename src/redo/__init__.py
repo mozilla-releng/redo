@@ -322,7 +322,7 @@ async def retry_async(
 
 def _check_number_of_attempts(attempt: int, attempts: int, func: Callable[..., Any], retry_function_name: str) -> None:
     if attempt > attempts:
-        log.warning("{}: {}: too many retries!".format(retry_function_name, func.__name__))
+        log.warning("{}: {}: too many retries!".format(retry_function_name, getattr(func, "__name__", func)))
         raise
 
 
@@ -335,7 +335,7 @@ def _define_sleep_time(
 ) -> float:
     sleeptime_kwargs = sleeptime_kwargs or {}
     sleep_time = sleeptime_callback(attempt, **sleeptime_kwargs)
-    log.debug("{}: {}: sleeping {} seconds before retry".format(retry_function_name, func.__name__, sleep_time))
+    log.debug("{}: {}: sleeping {} seconds before retry".format(retry_function_name, getattr(func, "__name__", func), sleep_time))
     return sleep_time
 
 
